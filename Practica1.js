@@ -2,67 +2,61 @@ class ProductManager {
 
     constructor() {
         this.products = [];
-        this.id = 1;
     }
 
-    addProducts({ title, description, price, thumbnail, code, stock, id }) {
-        id = this.id;
+    addProduct(product) {
+        const producto = this.products.find(e => e.code === product.code)
 
-        const verifyCode = this.products.some((product) => {
-            return product.code === code && !this._isSameId(product);
-        });
-        if (verifyCode) {
-            console.log("El valor introducido ya se encuentra asignado a otro producto")
-        } else if (
-            title != "" &&
-            description != "" &&
-            typeof Number(price) != "NaN" &&
-            thumbnail != "" &&
-            code != "" &&
-            stock != "" &&
-            stock != undefined &&
-            code != undefined &&
-            thumbnail != undefined &&
-            title != undefined &&
-            description != undefined &&
-            price != undefined
-        ) {
-            console.log("producto cargado correctamente");
-            this.products.push({
-                title,
-                description,
-                price,
-                thumbnail,
-                code,
-                stock,
-                id
-            });
-            this.id = this.id + 1;
+        if (producto) {
+            console.log("EL producto ya está en el inventario")
         } else {
-            console.log("Todos los parametros son requeridos")
+            this.products.push(product)
         }
     }
 
-    getProducts(){
-        return this.products
+
+    getProducts() {
+        console.log(this.products)
     }
 
-    getProductsByID(id){
+    getProductsByID(id) {
         const resultadoID = this.products.find(e => e.id === id)
 
-        if(resultadoID){
-            return resultadoID
+        if (resultadoID) {
+            console.log(resultadoID)
         } else {
-            return "No Encontrado"
+            console.log("Producto no Encontrado")
         }
+    }
+}
+
+class Product {
+    constructor(code, title, price, thumbnail, stock, category, description) {
+        this.code = code
+        this.title = title
+        this.price = price
+        this.thumbnail = thumbnail
+        this.stock = stock
+        this.category = category
+        this.description = description
+        this.id = Product.incrementarID()
+    }
+
+    static incrementarID() {
+        if (this.idIncrement) {
+            this.idIncrement++
+        } else {
+            this.idIncrement = 1
+        }
+        return this.idIncrement
     }
 
 }
 
 
-
-
 //Testing
+
+//se crean
 
 // se crea la instancia Product Manager
 const adminProduct = new ProductManager();
@@ -71,25 +65,26 @@ const adminProduct = new ProductManager();
 console.log(adminProduct.getProducts());
 
 //se llama a addProduct con un elemento de prueba
-adminProduct.addProducts({
+adminProduct.addProduct({
     title: 'producto prueba',
     description: 'Este es el primer producto de prueba',
     price: '$50.98',
     thumbnail: 'sin imagen de momento',
-    code:'sku-pru234',
+    code: 'sku-pru234',
     stock: 50,
+    category: 'prueba',
 })
 
 //se llama a getProducts de nuevo, esta vez tiene que aparecer el producto ya creado
 console.log(adminProduct.getProducts());
 
 //se llama a addProducts con los mismos campos de arriba, debe arrojar un error ya que el code estara repetido
-adminProduct.addProducts({
+adminProduct.addProduct({
     title: 'producto prueba',
     description: 'Este es el primer producto de prueba',
     price: '$50.98',
     thumbnail: 'sin imagen de momento',
-    code:'sku-pru234',
+    code: 'sku-pru234',
     stock: 50,
 })
 
@@ -97,3 +92,4 @@ adminProduct.addProducts({
 console.log(adminProduct.getProductsByID(15));
 
 console.log(adminProduct.getProductsByID(1));
+
