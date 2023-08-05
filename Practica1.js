@@ -56,7 +56,10 @@ class Product {
 
 //Testing
 
-//se crean
+//se crean nuevos productos
+const producto1 = new Product('FF001',"Funda mototola g8",250,[],500,"fundas","funda para motorola g8")
+const producto2 = new Product('FF002',"Funda mototola g8 power",250,[],500,"fundas","funda para motorola g8 power")
+const producto3 = new Product('FF003',"Funda mototola g8 plus",250,[],500,"fundas","funda para motorola g8 plus")
 
 // se crea la instancia Product Manager
 const adminProduct = new ProductManager();
@@ -65,28 +68,15 @@ const adminProduct = new ProductManager();
 console.log(adminProduct.getProducts());
 
 //se llama a addProduct con un elemento de prueba
-adminProduct.addProduct({
-    title: 'producto prueba',
-    description: 'Este es el primer producto de prueba',
-    price: '$50.98',
-    thumbnail: 'sin imagen de momento',
-    code: 'sku-pru234',
-    stock: 50,
-    category: 'prueba',
-})
+adminProduct.addProduct(producto1)
+adminProduct.addProduct(producto2)
+adminProduct.addProduct(producto3)
 
 //se llama a getProducts de nuevo, esta vez tiene que aparecer el producto ya creado
 console.log(adminProduct.getProducts());
 
 //se llama a addProducts con los mismos campos de arriba, debe arrojar un error ya que el code estara repetido
-adminProduct.addProduct({
-    title: 'producto prueba',
-    description: 'Este es el primer producto de prueba',
-    price: '$50.98',
-    thumbnail: 'sin imagen de momento',
-    code: 'sku-pru234',
-    stock: 50,
-})
+adminProduct.addProduct(producto2)
 
 //se evalua getProductsByID para devuelva error si no encuentra el producto, de caso contrario se devuelve el producto
 console.log(adminProduct.getProductsByID(15));
