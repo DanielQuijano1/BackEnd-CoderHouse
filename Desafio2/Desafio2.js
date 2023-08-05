@@ -1,6 +1,4 @@
 const fs = require("fs");
-const { json } = require("react-router-dom");
-
 class ProductManager {
 
     constructor() {
