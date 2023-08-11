@@ -1,11 +1,13 @@
-const fs = require("fs");
+import {promises as fs} from 'fs'
+
+const path = "./productos.json"
+
 class ProductManager {
 
     constructor() {
         this.path = path;
         this.products = [];
     }
-
 
 
     async addProduct(product) {
@@ -16,7 +18,7 @@ class ProductManager {
         } else {
             try {
                 this.products.push(product)
-                await fs.promises.writeFile(this.path, JSON.stringify(this.products))
+                await fs.writeFile(this.path, JSON.stringify(this.products))
             } catch (error) {
                 console.log("Error en la promesa Async", error)
             }
@@ -26,7 +28,7 @@ class ProductManager {
 
     async getProducts() {
         try {
-            this.products = JSON.parse(await fs.promises.readFile(this.path, "utf-8"))
+            this.products = JSON.parse(await fs.readFile(this.path, "utf-8"))
             console.log(this.products)
         } catch (error) {
             console.log(error)
@@ -34,7 +36,7 @@ class ProductManager {
     }
 
     getProductsByID = async (id) => {
-        this.products = JSON.parse(await fs.promises.readFile(this.path, "utf-8"))
+        this.products = JSON.parse(await fs.readFile(this.path, "utf-8"))
         const resultadoID = this.products.find(e => e.id === id)
 
         if (resultadoID) {
@@ -46,10 +48,10 @@ class ProductManager {
 
     updateProduct = async (id, data) => {
         try {
-            let productUpdate = await this._getProductByID(id);
+            let productUpdate = await this.getProductsByID(id);
             let productIndex = this.products.findIndex(e => e.id === id)
-            this.products[productIndex] = { ...productToUpdate, ...data, id: id }
-            await fs.promises.writeFile(this.path, JSON.stringify(this.products))
+            this.products[productIndex] = { ...productUpdate, ...data, id: id }
+            await fs.writeFile(this.path, JSON.stringify(this.products))
             console.log("producto editado correctamente")
         } catch(error){
             console.log("Error en el UPDATE", error)
@@ -58,9 +60,9 @@ class ProductManager {
 
     deleteProduct = async(id) => {
         try{
-            this.products = JSON.parse(await fs.promises.readFile(this.path, 'utf-8'))
+            this.products = JSON.parse(await fs.readFile(this.path, 'utf-8'))
             this.products = this.products.filter(product => product.id !== id)
-            await fs.promises.writeFile(this.path, JSON.stringify(this.products))
+            await fs.writeFile(this.path, JSON.stringify(this.products))
         }catch (error){
             console.log("Error en Borrar el producto", error)
         }
@@ -104,7 +106,7 @@ const producto2 = new Product('FF002', "Funda mototola g8 power", 250, [], 500, 
 const producto3 = new Product('FF003', "Funda mototola g8 plus", 250, [], 500, "fundas", "funda para motorola g8 plus")
 
 // se crea la instancia Product Manager
-const adminProduct = new ProductManager();
+const adminProduct = new ProductManager("./productos.json");
 
 //se llama a getProducts la cual debe devolver un arreglo vacio
 console.log(adminProduct.getProducts());
