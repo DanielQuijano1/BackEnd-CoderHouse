@@ -3,7 +3,7 @@ import { ProductManager } from "../src/ProductManager.js"
 
 const PORT = 8080;
 const app = express();
-const path = "./products/productos.json"
+const path = "../products/productos.json"
 const productManager = new ProductManager(path);
 
 app.use(express.json())
