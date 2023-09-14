@@ -1,5 +1,5 @@
 {
-  "name": "aaa",
+  "name": "desafio6",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -16,6 +16,10 @@
   "dependencies": {
     "express": "^4.18.2",
     "moment": "^2.29.4",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "express-handlebars": "^7.1.2",
+    "express-routemap": "^1.6.0",
+    "mongoose": "^7.5.0",
+    "socket.io": "^4.7.2"
   }
 }
