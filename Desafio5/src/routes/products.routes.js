@@ -1,82 +1,52 @@
 import { Router } from "express";
 import { ProductManager } from "../ProductManager.js";
 
-const productManager = new ProductManager("./products/productos.json")
 const productRouter = Router();
+const productManager = new ProductManager("./products/products.json");
 
+// debe listar todos los productos incluir limit
+productRouter.get("/", async (req, res) => {
+    const products = await productManager.getProducts();
+    const limit = Number(req.query.limit);
+    if (limit) {
+        return res.status(200).json(products.slice(0, limit));
+    } else return res.status(200).json(products);
+});
 
-
-productRouter.get('/', async (req, res) => {
-    const { limit } = req.query
-
-    const prods = await productManager.getProducts()
-
-    const products = prods.slice(0, limit)
-
-    res.status(200).send(products)
-})
-
-
-productRouter.get('/:pid', async (req, res) => {
-    const { id } = req.params
-
-    const prod = await productManager.getProductsByID(parseInt(id))
-
-    if (prod)
-        res.status(200).send(prod)
-    else
-        res.status(404).send("Producto no encontrado")
-})
-
-
-productRouter.post('/', async (req, res) => {
-    const { code } = req.body
-
-    const confirmacion = await productManager.getProductByCode(code)
-    if (confirmacion) {
-        req.status(400).send("producto ya creado")
+// debe traer sólo el productom seleccionado mediante el pid
+productRouter.get("/:pid", async (req, res) => {
+    const id = Number(req.params.pid);
+    const product = await productManager.getProductById(id);
+    if (!product) {
+        return res.status(404).json(product);
     } else {
-        const conf = await productManager.addProduct(req.body)
-        if (conf)
-            res.status(200).send("Producto ya creado")
+        res.status(200).json(product);
     }
+});
 
-    const prods = await productManager.getProducts()
-
-    const products = prods.slice(0, limit)
-
-    res.status(200).send(products)
-})
-
-
-productRouter.put('/:pid', async (req, res) => {
-    const { id } = req.params
-
-    const confirmacion = await productManager.getProductsByID(parseInt(id))
-
-    if (confirmacion) {
-        await productManager.updateProduct(parseInt(id),req.body)
-        res.status(200).send("Producto Actualizado")
+//debe agregar nuevos productos
+productRouter.post(`/`, async (req, res) => {
+    const { title, description, code, price, stock, category } = req.body;
+    const newProduct = await productManager.addProducts(req.body);
+    if (!newProduct) {
+        return res.status(400).json(newProduct);
+    } else {
+        res.status(200).json(newProduct);
     }
-    else
-        res.status(404).send("Producto no encontrado")
-})
+});
 
+//elimina un producto
+productRouter.delete(`/:pid`, async (req, res) => {
+    const productToDelete = await productManager.deleteProduct(Number(req.params.pid))
+    res.status(200).json(productToDelete)
+});
 
-productRouter.delete('/:pid', async (req, res) => {
-    const { id } = req.params
+//toma un producto y lo actualiza
+productRouter.put(`/:pid`, async (req, res) => {
 
-    const confirmacion = await productManager.getProductsByID(parseInt(id))
+    const productToUpdate = await productManager.updateProduct(Number(req.params.pid), req.body);
+    res.status(200).json(productToUpdate);
 
-    if (confirmacion) {
-        await productManager.deleteProduct(parseInt(id))
-        res.status(200).send("Producto Eliminado")
-    }
-    else
-        res.status(404).send("Producto no encontrado")
-})
-
-
-
+});
 
 export default productRouter;

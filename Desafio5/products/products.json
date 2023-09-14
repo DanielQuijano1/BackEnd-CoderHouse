@@ -1,0 +1,112 @@
+[
+    {
+        "title": "newProduct 1",
+        "description": "Este es el producto numero 1",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 111,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 1
+    },
+    {
+        "title": "newProduct 2",
+        "description": "Este es el producto numero 2",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 112,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 2
+    },
+    {
+        "title": "newProduct 3",
+        "description": "Este es el producto numero 3",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 113,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 3
+    },
+    {
+        "title": "newProduct 4",
+        "description": "Este es el producto numero 4",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 114,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 4
+    },
+    {
+        "title": "newProduct 5",
+        "description": "Este es el producto numero 5",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 115,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 5
+    },
+    {
+        "title": "newProduct 6",
+        "description": "Este es el producto numero 6",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 116,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 6
+    },
+    {
+        "title": "newProduct 7",
+        "description": "Este es el producto numero 7",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 117,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 7
+    },
+    {
+        "title": "newProduct 8",
+        "description": "Este es el producto numero 8",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 118,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 8
+    },
+    {
+        "title": "newProduct 9",
+        "description": "Este es el producto numero 9",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 119,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 9
+    },
+    {
+        "title": "newProduct 10",
+        "description": "Este es el producto numero 10",
+        "price": 2500,
+        "thumbnail": "no hay imagen",
+        "code": 110,
+        "stock": 1,
+        "status": true,
+        "category": "food",
+        "id": 10
+    }
+]

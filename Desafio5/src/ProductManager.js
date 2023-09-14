@@ -1,151 +1,160 @@
-import { promises as fs } from 'fs'
+import { promises as fs } from "fs";
+//const fs = require("fs");
 
 export class ProductManager {
-
     constructor(path) {
-        this.path = "../products/productos.json";;
+        this.path = path;
         this.products = [];
     }
 
-
-    async addProduct(product) {
-        const producto = this.products.find(e => e.code === product.code)
-
-        if (producto) {
-            console.log("EL producto ya está en el inventario")
-        } else {
-            try {
-                this.products.push(product)
-                await fs.writeFile(this.path, JSON.stringify(this.products))
-            } catch (error) {
-                console.log("Error en la promesa Async", error)
-            }
+    async generateIndex(listProducts) {
+        try {
+            if (listProducts.length === 0) return 1;
+            return listProducts[listProducts.length - 1].id + 1;
+        } catch (error) {
+            console.log(
+                "🚀 ~ file: armyManager.js:17 ~ ArmyManager ~ generateIndex ~ error",
+                error
+            );
         }
     }
 
+    async addProducts({
+        title,
+        description,
+        price,
+        thumbnail,
+        code,
+        stock,
+        id,
+        status,
+        category,
+    }) {
+        const listProducts = JSON.parse(await fs.readFile(this.path, "utf-8"));
+        const newId = await this.generateIndex(listProducts);
+        id = newId;
+        status = true;
+        const verificarCode = listProducts.some((product) => {
+            return product.code === code;
+        });
+        if (verificarCode) {
+            return {
+                message: "el valor del CODE ya se encuentra asignado a otro producto",
+            };
+        } else if (
+            title != "" &&
+            description != "" &&
+            price != "" &&
+            stock != "" &&
+            title != undefined &&
+            description != undefined &&
+            price != undefined &&
+            stock != undefined &&
+            code != "" &&
+            code != undefined &&
+            category != "" &&
+            category != undefined
+        ) {
+            try {
+                // console.log("producto cargado correctamente");
+                listProducts.push({
+                    title,
+                    description,
+                    price,
+                    thumbnail,
+                    code,
+                    stock,
+                    status,
+                    category,
+                    id,
+                });
+
+                await fs.writeFile(this.path, JSON.stringify(listProducts));
+                return { message: "El producto ha sido cargado correctamente" };
+            } catch (error) {
+                console.log(
+                    "🚀 ~ file: ProductManager.js:46 ~ ProductManager ~ addProducts ~ error:",
+                    error
+                );
+            }
+        } else {
+            return { message: "todos los parametros son requeridos" };
+        }
+    }
 
     async getProducts() {
-        const products = JSON.parse(await fs.readFile(this.path, "utf-8"))
-        console.log(products)
-    }
-
-    getProductsByID = async (id) => {
-        this.products = JSON.parse(await fs.readFile(this.path, "utf-8"))
-        const resultadoID = this.products.find(e => e.id === id)
-
-        if (resultadoID) {
-            console.log(resultadoID)
-        } else {
-            console.log("Producto no Encontrado")
+        try {
+            const data = JSON.parse(await fs.readFile(this.path, "utf-8"));
+            return data;
+        } catch (error) {
+            console.log(
+                "🚀 ~ file: ProductManager.js:59 ~ ProductManager ~ getProducts ~ error:",
+                error
+            );
         }
     }
+
+    getProductById = async (id) => {
+        this.products = JSON.parse(await fs.readFile(this.path, "utf-8"));
+        const resultadoId = this.products.find((e) => e.id === id);
+        if (resultadoId) {
+            return resultadoId;
+        } else {
+            return { message: "Product Not Found" };
+        }
+    };
 
     updateProduct = async (id, data) => {
-        const products = JSON.parse(await fs.readFile(this.path, "utf-8"))
-        const indiceProducto = products.findIndex(e => e.id === id)
-        if (indiceProducto != -1) {
-            products[indiceProducto].code = data.code
-            products[indiceProducto].title = data.title
-            products[indiceProducto].price = data.price
-            products[indiceProducto].thumbnail = data.thumbnail
-            products[indiceProducto].stock = data.stock
-            products[indiceProducto].category = data.category
-            products[indiceProducto].description = data.description
-            await fs.writeFile(this.path, JSON.stringify(products))
+        let listProducts = await this.getProducts();
+
+
+
+        let productToUpdate = await this.getProductById(id);
+        let productoIndex = this.products.findIndex((e) => e.id === id);
+        let codeVerif = listProducts.find((e) => e.code === data.code);
+        if (!codeVerif) {
+            //let idProduct = listProducts.find((e) => e.id === id);
+            try {
+                // let productToUpdate = await this.getProductById(id);
+                // let productoIndex = this.products.findIndex((e) => e.id === id);
+                listProducts[productoIndex] = {
+                    ...productToUpdate,
+                    ...data,
+                    id: id,
+                };
+                await fs.writeFile(this.path, JSON.stringify(listProducts));
+                return { message: "Producto actualizado correctamente" };
+            } catch (error) {
+                console.log(
+                    "🚀 ~ file: ProductManager.js:120 ~ ProductManager ~ updateProduct= ~ error:",
+                    error
+                );
+            }
         } else {
-            console.log("Producto no encontrao")
+            return { message: "el valor del CODE ya se encuentra asignado a otro producto" };
         }
-    }
+
+
+
+    };
 
     deleteProduct = async (id) => {
-        const products = JSON.parse(await fs.readFile(this.path, "utf-8"))
-        const producto = products.find(e => e.id === id)
-        if (producto) {
-            await fs.writeFile(this.path, JSON.stringify(products.filter(e => e.id != id)))
-        } else {
-            console.log("Error en Borrar el producto")
+        try {
+            let listProducts = await this.getProducts();
+            listProducts = listProducts.filter((prod) => prod.id !== id);
+            await fs.writeFile(this.path, JSON.stringify(listProducts));
+            return { message: "Producto eliminado" };
+        } catch (error) {
+            console.log(
+                "🚀 ~ file: ProductManager.js:112 ~ ProductManager ~ deleteProduct ~ error:",
+                error
+            );
         }
-    }
+    };
 }
 
-class Product {
-    constructor(code, title, price, thumbnail, stock, category, description) {
-        const map = new Map([[title], [description], [price], [thumbnail], [code], [stock]])
-        if (map.has('') || map.has(0)) {
-            console.log('Error en los datos')
-        } else {
-            this.code = code
-            this.title = title
-            this.price = price
-            this.thumbnail = thumbnail
-            this.stock = stock
-            this.category = category
-            this.description = description
-            this.id = Product.incrementarID()
-        }
-    }
+// export * from ProductManager;
+// //module.exports = ProductManager;
 
-    static incrementarID() {
-        if (this.idIncrement) {
-            this.idIncrement++
-        } else {
-            this.idIncrement = 1
-        }
-        return this.idIncrement
-    }
-
-}
-/*
-
-//Testing
-
-//se crean nuevos productos
-const producto1 = new Product('FF001', "Funda mototola g8", 250, [], 500, "fundas", "funda para motorola g8")
-const producto2 = new Product('FF002', "Funda mototola g8 power", 250, [], 500, "fundas", "funda para motorola g8 power")
-const producto3 = new Product('FF003', "Funda mototola g8 plus", 250, [], 500, "fundas", "funda para motorola g8 plus")
-*/
-// se crea la instancia Product Manager
-
-//const adminProduct = new ProductManager("../products/productos.json");
-
-/*
-//se llama a getProducts la cual debe devolver un arreglo vacio
-console.log(adminProduct.getProducts());
-
-//se llama a addProduct con un elemento de prueba
-adminProduct.addProduct(producto1)
-adminProduct.addProduct(producto2)
-adminProduct.addProduct(producto3)
-
-
-//se llama a getProducts de nuevo, esta vez tiene que aparecer el producto ya creado
-console.log(adminProduct.getProducts());
-
-//se llama a addProducts con los mismos campos de arriba, debe arrojar un error ya que el code estara repetido
-adminProduct.addProduct(producto2)
-
-//se evalua getProductsByID para devuelva error si no encuentra el producto, de caso contrario se devuelve el producto
-console.log(adminProduct.getProductsByID(15));
-
-
-//se llama a updateProduct para actualizar la data de uno de los productos
-const productoActualizado =
-{
-    code: "FF003",
-    title: "Funda mototola g8 plus lite",
-    price: 250,
-    thumbnail: [],
-    stock: 50,
-    category: "fundas",
-    description: "funda para motorola g8 plus lite",
-}
-
-adminProduct.updateProduct(2, productoActualizado )
-*/
-// adminProduct.deleteProduct(2)
-
-//se evalua update del producto 2 con getProductsByID
-//console.log(adminProduct.getProducts());
-// console.log(adminProduct.getProductsByID(2));
-
-
+// const productManager = new ProductManager("../products/products.json");
+// productManager.getProductById(3)
