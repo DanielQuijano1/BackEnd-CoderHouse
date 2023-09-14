@@ -1,0 +1,17 @@
+<link rel="stylesheet" href="css/homeStyle.css">
+
+{{#if products}}
+    <h1>Productos</h1>
+    {{#each products}}
+        <h2>{{this.title}}</h2>
+        <p><b>Descripción:</b> {{this.description}}</p>
+        <p><b>Precio: $ </b>{{this.price}}</p>
+        <p><b>Código:</b> {{this.code}}</p>
+        <p><b>Stock:</b> {{this.stock}}</p>
+    {{/each}}
+{{else}}
+    <strong>No se ha encontrado ningun producto</strong>
+{{/if}}
+
+
+<script src="js/home.js"></script>

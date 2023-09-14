@@ -1,0 +1,43 @@
+<link rel="stylesheet" href="css/realTimeStyle.css">
+
+<h1>Vista de productos en tiempo real</h1>
+
+<h2>Agregar producto</h2>
+<form id='add-prod' class='add-prod'>
+    <div>
+        <label for="prod-title">Nombre
+            <input type="text" name='title'>
+        </label>
+    </div>
+    <div>
+        <label for="prod-desc">Descripción
+            <input type="text" name='description'>
+        </label>
+    </div>
+    <div>
+        <label for="prod-category">Categoría
+            <input type="text" name='category'>
+        </label>
+    </div>
+    <div>
+        <label for="prod-price">Precio
+            <input type="text" name='price'>
+        </label>
+    </div>
+    <div>
+        <label for="prod-code">Código
+            <input type="text" name='code'>
+        </label>
+    </div>
+    <div>
+        <label for="prod-stock">Stock
+            <input type="text" name='stock'>
+        </label>
+    </div>
+    <button id='btn-form'>Agregar</button>
+</form>
+
+<div id='products-container'></div>
+
+<script src="socket.io/socket.io.js"></script>
+<script src="js/realTimeProducts.js"></script>
