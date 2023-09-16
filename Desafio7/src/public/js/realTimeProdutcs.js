@@ -1,43 +1,60 @@
 const socket = io();
 
-const btnForm = document.getElementById('btn-form');
-const form = document.getElementById('add-prod');
+console.log("socket conectado desd JS")
+//const btnFormAdd = document.getElementById('btn-formCreate');
+const AddForm = document.getElementById('addForm')
+const deleteForm = document.getElementById('deleteForm')
+const viewProducts = document.getElementById('viewProducts')
 
-const newProd = e => {
-    e.preventDefault();
-    const data = new FormData(form);
-    const prod = {
-        title: data.get('title'),
-        description: data.get('description'),
-        category: data.get('category'),
-        price: data.get('price'),
-        code: Number(data.get('code')),
-        stock: data.get('stock')
-    };
-    socket.emit('addProd', prod);
-    form.reset();
-};
 
-const delProd = async e => socket.emit('delProd', Number(e.target.id));
+
 
 socket.on('products', products => {
     const productsContainer = document.getElementById('products-container');
     productsContainer.innerHTML = '';
     for (const prod of products.reverse()) {
         productsContainer.innerHTML += `
-			<div>
-            	<h2>${prod.title}</h2>
-            	<p><b>Descripción:</b> ${prod.description}</p>
-            	<p><b>Categoría:</b> ${prod.category}</p>
-            	<p><b>Precio: $</b>${prod.price}</p>
-            	<p><b>Código:</b> ${prod.code}</p>
-            	<p><b>Stock:</b> ${prod.stock}</p>
-            	<button id=${prod.id} class='btn-del'>Eliminar</button>
+			<div class="container">
+				<div class="collection-list mt-4 row gx-0 gy-3" >
+					<div class="col-md-6 col-lg-4 col-xl-3 p-2 ">
+						<div class="card" style="width: 18rem;">
+            				<h2>${prod.title}</h2>
+							<div class="card-body">
+            					<p><b>Descripción:</b> ${prod.description}</p>
+            					<p><b>Categoría:</b> ${prod.category}</p>
+            					<p><b>Precio: $</b>${prod.price}</p>
+            					<p><b>Código:</b> ${prod.code}</p>
+            					<p><b>Stock:</b> ${prod.stock}</p>
+							</div>
+						</div>
+					</div>
+				</div>
         	</div>
 		`;
     }
 });
 
-document.addEventListener('click', e => e.target.matches('.btn-del') && delProd(e));
+viewProducts.addEventListener('click', async () => {
 
-btnForm.addEventListener('click', newProd);
+    await socket.emit('products')
+
+})
+
+AddForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const datForm = new FormData(e.target) //Me genera un objeto iterador
+    const newProd = Object.fromEntries(datForm) //De un objeto iterable genero un objeto simple
+    await socket.emit('addProd', newProd)
+    //await socket.emit('products');
+    e.target.reset()
+})
+
+
+deleteForm.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const code = deleteForm.elements["code"].value;
+    await socket.emit('deleteProduct', { code })
+    e.target.reset()
+})
+
+//btnFormAdd.addEventListener('click', newProd);

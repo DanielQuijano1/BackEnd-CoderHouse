@@ -1,44 +1,155 @@
 import { Router } from "express";
-//import { ProductManager } from "../ProductManager.js";
-import { Carts } from "../Carts.js";
+import { cartsModel } from "../models/carts.models.js";
+import CartsManager from "../managers/cartsManager.js";
 
-const cartsRouter = Router();
+class cartsRoutes {
+    path = "/carts";
+    router = Router();
+    cartsManager;
 
-const carts = new Carts("./products/carts.json");
-//const productManager = new ProductManager("./products/products.json");
-
-//debe generar un nuevo carrito
-cartsRouter.post("/", async (req, res) => {
-
-    // const { products } = req.body;
-    const carga = await carts.createCart();
-
-    if (!carga) {
-        return res.status(400).json(carga);
-    } else {
-        res.status(200).json(carga);
+    constructor() {
+        this.initCartsRoutes();
+        this.cartsManager = new CartsManager()
     }
-});
 
-// debe cargar un producto al carrito seleccionado
-cartsRouter.post(`/:cid/product/:pid`, async (req, res) => {
-    const { products } = req.body;
-    const cid = Number(req.params.cid);
-    console.log("~ file: carts.routes.js:26 ~ cartsRouter.post ~ cid:", cid);
-    const pid = Number(req.params.pid);
-    console.log("~ file: carts.routes.js:28 ~ cartsRouter.post ~ pid:", pid);
-    const carga = await carts.addProductInCartById(cid, pid);
-    res.status(200).json(carga);
-});
+    initCartsRoutes() {
+        //crea un carrito vacío
+        this.router.post(`${this.path}`, async (req, res) => {
+            try {
+                const cart = await cartsModel.create({});
+                res.status(200).send({
+                    message: `cart created succesfully`,
+                    cart,
+                });
+            } catch (error) {
+                console.log("🚀 ~ file: cartsRoutes ~ this.router.post ~ error:", error)
+                res
+                    .status(400)
+                    .send({
+                        message: "error creating product",
+                        error,
+                    });
+            }
+        });
 
-cartsRouter.get("/:cid", async (req, res) => {
-    const id = Number(req.params.cid);
-    const products = await carts.getCartById(id);
-    if (!products) {
-        return res.status(404).json(products);
-    } else {
-        res.status(200).json(products);
+        //Obtiene los productos del carrito indicado con el cartID
+        this.router.get(`${this.path}/:cartId`, async (req, res) => {
+            const { cartId } = req.params;
+            try {
+                const products = await this.cartsManager.getProductInCartById(cartId);
+                if (products)
+                    res.status(200).send({
+                        message: `Products in the cart ${cartId}`,
+                        products,
+                    });
+                else
+                    res.status(404).send({
+                        message: `product with id ${cartId} not found`,
+                    });
+            } catch (error) {
+                console.log("🚀 ~ file: cartsRoutes ~ this.router.get ~ error:", error)
+                res.status(400).send({
+                    message: "error getting carts",
+                    error,
+                });
+            }
+        });
+
+        //añade un producto asignado a un carrito designado
+        this.router.post(`${this.path}/:cartId/products/:productId`, async (req, res) => {
+            const { cartId, productId } = req.params
+            const { quantity } = req.body
+            try {
+                const addProduct = await this.cartsManager.addProductInCartById(cartId, productId, quantity);
+                res.status(200).send({
+                    message: 'the cart was uploaded successfully',
+                    product: addProduct
+                })
+            } catch (error) {
+                console.log("🚀 ~ file: cartsRoutes ~ this.router.post ~ error:", error)
+                res.status(400).send({
+                    message: 'error updating cart',
+                    error
+                })
+            }
+
+        })
+
+        //DELETE "/:cid" ==> elimina todos los productos del carrito seleccionado
+        this.router.delete(`${this.path}/:cartId`, async (req, res) => {
+            const { cartId } = req.params
+            try {
+                const deleteProducts = await this.cartsManager.delProductsInCartById(cartId);
+                res.status(200).send({
+                    message: `the products in the cart ${cartId} were successfully deleted`,
+                    product: deleteProducts
+                })
+            } catch (error) {
+                console.log("🚀 ~ file: cartsRoutes ~ this.router.delete ~ error:", error)
+                res.status(400).send({
+                    message: 'error deleting products',
+                    error
+                })
+            }
+        })
+
+        // DELETE "/:cid/products/:pid"  ==> eliminará del carrito el producto seleccionado
+        this.router.delete(`${this.path}/:cartId/products/:productId`, async (req, res) => {
+            const { cartId, productId } = req.params
+            try {
+                const deleteProduct = await this.cartsManager.deletProdByIdInCartById(cartId, productId);
+                res.status(200).send({
+                    message: `the product ${productId} in the cart ${cartId} were successfully deleted`,
+                    product: deleteProduct
+                })
+            } catch (error) {
+                console.log("🚀 ~ file: cartsRoutes ~ this.router.delete ~ error:", error)
+                res.status(400).send({
+                    message: 'error deleting product',
+                    error
+                })
+            }
+        })
+
+
+
+        // PUT "api/carts/:cid/products/:pid" ==> actualiza sólo la cantidad del producto pasado
+        this.router.put(`${this.path}/:cartId/products/:productId`, async (req, res) => {
+            const { cartId, productId } = req.params
+            const { quantity } = req.body
+            try {
+                const result = await this.cartsManager.editQuantity(cartId, productId, quantity)
+                res.status(200).send({
+                    message: `the quantity was successfully updated`,
+                    product: result
+                })
+            } catch (error) {
+                console.log("🚀 ~ file: cartsRoutes ~ this.router.put ~ error:", error)
+
+            }
+        })
+
+        // PUT "/:cid" ==> actualiza el carrito mediante un array
+
+        this.router.put(`${this.path}/:cartId`, async (req, res) => {
+            const { cartId } = req.params
+            let arrayProducts = req.body
+            try {
+                let newListProducts = await this.cartsManager.insertArray(cartId, arrayProducts)
+                res.status(200).send({
+                    message: `the cart was successfully updated`,
+                    products: newListProducts
+                })
+            } catch (error) {
+                console.log("🚀 ~ file: cartsRoutes ~ this.router.put ~ error:", error)
+
+            }
+        })
+
     }
-});
+}
 
-export default cartsRouter;
+
+
+
+export default cartsRoutes;

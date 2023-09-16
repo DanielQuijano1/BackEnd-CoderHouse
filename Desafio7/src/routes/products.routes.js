@@ -1,52 +1,136 @@
 import { Router } from "express";
-import { ProductManager } from "../ProductManager.js";
+import ProductsManager from "../managers/productManager.js"
 
-const productRouter = Router();
-const productManager = new ProductManager("./products/products.json");
 
-// debe listar todos los productos incluir limit
-productRouter.get("/", async (req, res) => {
-    const products = await productManager.getProducts();
-    const limit = Number(req.query.limit);
-    if (limit) {
-        return res.status(200).json(products.slice(0, limit));
-    } else return res.status(200).json(products);
-});
 
-// debe traer sólo el productom seleccionado mediante el pid
-productRouter.get("/:pid", async (req, res) => {
-    const id = Number(req.params.pid);
-    const product = await productManager.getProductById(id);
-    if (!product) {
-        return res.status(404).json(product);
-    } else {
-        res.status(200).json(product);
+class productsRoutes {
+    path = "/products";
+    router = Router();
+    productManager;
+
+    constructor() {
+        this.productManager = new ProductsManager()
+        this.initProductRoutes();
     }
-});
+    initProductRoutes() {
+        this.router.get(`${this.path}`, async (req, res) => {
+            try {
+                let { limit, page, sort, category, status } = req.query;
 
-//debe agregar nuevos productos
-productRouter.post(`/`, async (req, res) => {
-    const { title, description, code, price, stock, category } = req.body;
-    const newProduct = await productManager.addProducts(req.body);
-    if (!newProduct) {
-        return res.status(400).json(newProduct);
-    } else {
-        res.status(200).json(newProduct);
+                const products = await this.productManager.getAllProducts(limit, page, sort, status, category);
+                return res.status(200).send({
+                    message: "Get all products successfully",
+                    products,
+                });
+            } catch (error) {
+                console.log("🚀 ~ file: productsRoutes ~ this.router.get ~ error:", error)
+                res.status(400).send({
+                    message: "error getting products",
+                    error: error,
+                });
+            }
+        });
+
+
+        this.router.get(`${this.path}/:productID`, async (req, res) => {
+            const { productID } = req.params;
+            try {
+                const product = await this.productManager.getProductById(productID);
+                if (product) {
+                    res.status(200).send({
+                        message: `get product info to id ${productID} successfully`,
+                        product,
+                    });
+                } else {
+                    res.status(404).send({
+                        message: `product with id ${productID} not found`,
+                    });
+                }
+            } catch (error) {
+                console.log("🚀 ~ file: productsRoutes ~ this.router.get ~ error:", error)
+
+                res.status(400).send({
+                    message: "error getting product",
+                    error: error,
+                });
+            }
+        });
+
+        this.router.post(`${this.path}`, async (req, res) => {
+            const { title, description, price, thumbnail, code, stock, category } = req.body;
+            try {
+                const newProduct = await this.productManager.addProduct({
+                    title, description, price, thumbnail, code, stock, category
+                });
+                if (!newProduct) {
+                    res.status(400).send({
+                        message: `the product whit code ${code} is alredy register`,
+                    });
+                } else
+                    res.status(200).send({
+                        message: "product loaded successfully",
+                        product: newProduct,
+                    })
+            } catch (error) {
+                console.log("🚀 ~ file: productsRoutes ~ this.router.post ~ error:", error)
+                res.status(400).send({
+                    message: "error creating product",
+                    error: error,
+                });
+            }
+        });
+
+
+
+        this.router.put(`${this.path}/:productID`, async (req, res) => {
+            const { productID } = req.params;
+            const { title, description, price, thumbnail, code, stock, category } = req.body;
+            try {
+                let product = await this.productManager.updateProductById(productID, { title, description, price, thumbnail, code, stock, category });
+                if (!product) {
+                    res.status(404).send({
+                        message: `product with id ${productID} not found`,
+                    });
+                } else {
+                    res.status(200).send({
+                        message: `updated product`,
+                        product,
+                    });
+                }
+            } catch (error) {
+                console.log("🚀 ~ file: productsRoutes ~ this.router.put ~ error:", error)
+                res.status(400).send({
+                    message: "error updating product",
+                    error: error,
+                });
+            }
+        });
+
+
+        this.router.delete(`${this.path}/:productID`, async (req, res) => {
+            const { productID } = req.params;
+            try {
+                // const product = await ProductsModel.findByIdAndDelete(productID);
+                const product = await this.productManager.deleteProductById(productID)
+                if (product) {
+                    res.status(200).send({
+                        message: `product whith id ${productID} removed successfully`,
+                        product,
+                    });
+                } else {
+                    res.status(404).send({
+                        message: `product with id ${productID} not found`,
+                    });
+                }
+            } catch (error) {
+                res.status(400).send({
+                    message: "error deleting product",
+                    error,
+                });
+            }
+        });
     }
-});
+}
 
-//elimina un producto
-productRouter.delete(`/:pid`, async (req, res) => {
-    const productToDelete = await productManager.deleteProduct(Number(req.params.pid))
-    res.status(200).json(productToDelete)
-});
 
-//toma un producto y lo actualiza
-productRouter.put(`/:pid`, async (req, res) => {
-
-    const productToUpdate = await productManager.updateProduct(Number(req.params.pid), req.body);
-    res.status(200).json(productToUpdate);
-
-});
-
-export default productRouter;
+export default productsRoutes

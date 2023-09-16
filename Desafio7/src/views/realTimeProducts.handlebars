@@ -1,43 +1,72 @@
-<link rel="stylesheet" href="css/realTimeStyle.css">
+<link rel="stylesheet" href="/css/realTimeStyle.css">
 
-<h1>Vista de productos en tiempo real</h1>
 
-<h2>Agregar producto</h2>
-<form id='add-prod' class='add-prod'>
-    <div>
-        <label for="prod-title">Nombre
-            <input type="text" name='title'>
-        </label>
+<div class="container">
+<h1 class="mt-4">Vista de productos en tiempo real</h1>
+<button class="btn btn-primary"  type="button" id="viewProducts">Ver Productos</button>
+</div>
+
+<div class="container">
+<h1 class="mt-4">Crear Nuevo Producto</h1>
+<form id="addForm">
+    <div class="row">
+        <div class="col-4 mb-3">
+            <label class="form-label" for="title">Title</label>
+            <input type="text" required name="title">
+        </div>
+        <div class="col-4 mb-3">
+            <label for="description">Description</label>
+            <input type="text" required name="description">
+        </div>
+        <div class="col-4 mb-3">
+            <label for="category">Category</label>
+            <input type="text" required name="category">
+        </div>
     </div>
-    <div>
-        <label for="prod-desc">Descripción
-            <input type="text" name='description'>
-        </label>
+
+    <div class="row">
+        <div class="col-4 mb-3">
+            <label for="price">Price</label>
+            <input type="number" required name="price">
+        </div>
+        <div class="col-4 mb-3">
+            <label for="stock">Stock</label>
+            <input type="number" required name="stock">
+        </div>
     </div>
-    <div>
-        <label for="prod-category">Categoría
-            <input type="text" name='category'>
-        </label>
+
+    <div class="row">
+        <div class="col-4 mb-3">
+            <label for="code">Code</label>
+            <input type="text" required name="code">
+        </div>
     </div>
-    <div>
-        <label for="prod-price">Precio
-            <input type="text" name='price'>
-        </label>
+
+
+    <div class="row">
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Cargar Producto</button>
+        </div>
     </div>
-    <div>
-        <label for="prod-code">Código
-            <input type="text" name='code'>
-        </label>
+</form><br><br>
+
+<h1 class="mt-4">Eliminar un Producto</h1>
+<form id="deleteForm">
+    <div class="row">
+        <div class="col-4 mb-3">
+            <label for="code">Code</label>
+            <input type="text" required name="code">
+        </div>
     </div>
-    <div>
-        <label for="prod-stock">Stock
-            <input type="text" name='stock'>
-        </label>
+    <div class="row">
+        <div class="col-12">
+            <button class="btn btn-primary" type="submit">Eliminar Producto</button>
+        </div>
     </div>
-    <button id='btn-form'>Agregar</button>
 </form>
-
+    </div>
 <div id='products-container'></div>
 
-<script src="socket.io/socket.io.js"></script>
-<script src="js/realTimeProducts.js"></script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/realTimeProducts.js"></script>

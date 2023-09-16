@@ -1,92 +1,154 @@
 import express from "express";
-import { ProductManager } from "../src/ProductManager.js"
-import productRouter from "./routes/products.routes.js"
-import cartsRouter from "./routes/carts.routes.js";
-import path from 'path'
-import multer from "multer";
+import displayRoutes from "express-routemap";
 import { __dirname } from "./path.js";
+import { mongoDBconnection } from "./db/mongo.config.js";
 import { engine } from "express-handlebars";
+import path from "path";
 import { Server } from "socket.io"
-
-const PORT = 8080;
-const app = express();
-const pathJson = "./products/products.json"
-const productManager = new ProductManager(pathJson);
-const server = app.listen(PORT, () => {
-    console.log(`Server on port ${PORT}`);
-});
+import ProductsManager from "./managers/productManager.js";
+import ChatsManager from "./managers/chatsManager.js"
 
 
-//=========CONFIG=============
-const storage = multer.diskStorage({
-    destination: (req, file, db) => {
-        cb(null, 'src/public/img')
-    },
-    filename: (req, file, db) => {
-        cb(null, `${Date.now()}${file.originalname}`)
+class App {
+    app;
+    port;
+    server;
+    productsManager;
+    chatsManager;
+
+
+    constructor(routes, viewsRoutes) {
+        this.app = express();
+        this.port = 8080;
+        this.productsManager = new ProductsManager()
+        this.chatsManager = new ChatsManager()
+
+        this.connectToDatabase();
+        this.initializeMiddlewares();
+        this.initializeRoutes(routes);
+        this.initHandlebars();
+        this.initializeViewsRoutes(viewsRoutes)
     }
-})
 
 
-//==========MIDLEWEARES==============
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }))
-const upload = multer({ storage: storage })
-app.use('/static', express.static(path.join(__dirname, '/public')))
-
-
-//routes
-app.use('/api/products', productRouter)
-app.use('/api/carts', cartsRouter)
-app.post('/upload', upload.single('producto'), (req, res) => {
-
-})
-
-// instancio la clase Server (de Socket.io) con la conexion al puerto (server) como parámetro
-const io = new Server(server);
-
-io.on('connection', async (socket) => {
-    console.log("Servidor socket.io conectado")
-
-    socket.emit('products', listProducts);
-
-    socket.on('addProd', async prod => {
-        try {
-            return await productManager.addProducts(prod)
-        } catch (error) {
-            console.log("🚀 ~ file: app.js:39 ~ io.on ~ error:", error)
-
-        }
-    })
-    socket.on('delProd', async id => await productManager.deleteProduct(id));
-})
-
-
-//***************CONFIGURACION HANDLEBARS**************/
-app.engine("handlebars", engine());
-app.set("view engine", "handlebars");
-app.set("views", path.resolve(__dirname, "./views"));
-
-
-let listProducts = [];
-const cargarProd = async () => {
-    try {
-        listProducts = await productManager.getProducts();
-    } catch (error) {
-        console.error("Error: not product found");
+    //inicializa la conexión con la base de datos
+    async connectToDatabase() {
+        // TODO: Inicializar la conexion
+        await mongoDBconnection();
     }
-};
-cargarProd();
 
-app.get("/home", (req, res) => {
-    res.status(200).render("home", {
-        title: "APP Coderhouse - Lista de productos",
-        products: listProducts,
-    })
-})
 
-app.get("/realtimeproducts", (req, res) => {
-    res.status(200).render("realTimeProducts", {
-        title: "APP Coderhouse - Tiempo real"
-    })
-})
+    //implementando midleweares
+    initializeMiddlewares() {
+        this.app.use(express.json());
+        this.app.use(express.urlencoded({ extended: true }));
+        this.app.use(express.static(path.join(__dirname, "/public")))
+        //this.app.use("/static", express.static(`${__dirname}/public`));
+    }
+
+
+    //Rutas de la API
+    initializeRoutes(routes) {
+        routes.forEach((route) => {
+            this.app.use(`/api/`, route.router);
+        });
+    }
+
+
+    //rutas de las vistas
+    initializeViewsRoutes(viewsRoutes) {
+        viewsRoutes.forEach((route) => {
+            this.app.use(`/`, route.router);
+        });
+    }
+
+
+    //iniciando Express
+    async listen() {
+        this.server = this.app.listen(this.port, () => {
+            displayRoutes(this.app);
+            console.log(`=================================`);
+            console.log(`🚀 App listening on the port ${this.port}`);
+            console.log(`=================================`);
+        });
+
+
+
+        //configuración de socket.io
+
+        const io = new Server(this.server);
+
+        io.on(`connection`, async (socket) => {
+            console.log("Servidor socket.io conectado")
+
+            socket.on('products', async () => {
+                const productsList = await this.productsManager.getAllProducts();
+                console.log("🚀 ~ file: App ~ socket.on ~ productsList:", productsList.docs)
+
+                socket.emit('products', productsList.docs);
+            })
+
+            socket.on('addProd', async (newProd) => {
+                try {
+                    const { title, description, price, code, stock, category } = newProd;
+                    await this.productsManager.addProduct({ title, description, price, code, stock, category });
+                    const productsList = await this.productsManager.getAllProducts();
+                    socket.emit('products', productsList);
+                } catch (error) {
+                    console.log("🚀 ~ file: App ~ socket.on ~ error:", error)
+                }
+            })
+
+            socket.on('deleteProduct', async ({ code }) => {
+                try {
+                    await this.productsManager.findAndDelete({ code });
+                    const productsList = await this.productsManager.getAllProducts();
+                    socket.emit('products', productsList);
+
+                } catch (error) {
+                    console.log("🚀 ~ file: App ~ socket.on ~ error:", error)
+                }
+            })
+
+            //****canal de mensajes
+            socket.on("message", async (data) => {
+                try {
+                    await this.chatsManager.addMessage(data);
+
+                    //await chatsModel.create(data);
+                } catch (error) {
+                    console.log("🚀 ~ file: socket.on ~ error:", error)
+
+                }
+                //const info = await chatsModel.find();
+                const info = await this.chatsManager.getAllMessages();
+                io.emit("messageLogs", info.reverse());
+            });
+
+
+
+            //****canal de autenticación
+            socket.on("authenticated", (data) => {
+                socket.broadcast.emit("newUserConnected", data);
+            });
+
+            //canal de autenticación
+            socket.on("authenticated", (data) => {
+                socket.broadcast.emit("newUserConected", data);
+            });
+        })
+    }
+
+
+    initHandlebars() {
+        this.app.engine("handlebars", engine());
+        this.app.set("view engine", "handlebars");
+        this.app.set("views", path.resolve(__dirname, "./views"));
+    }
+
+
+
+}
+
+
+export default App;
