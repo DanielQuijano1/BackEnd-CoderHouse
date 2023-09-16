@@ -1,7 +1,7 @@
 import { connect } from "mongoose";
 
 const DB_URL =
-    "mongodb+srv://kiidan:<password>@cluster0.6lgggyf.mongodb.net/?retryWrites=true&w=majority";
+    "mongodb+srv://kiidan:Camaro21@cluster0.6lgggyf.mongodb.net/?retryWrites=true&w=majority";
 
 //TODO:*** Aquí se reemplaza "<password>" por el pasword que envié por privado **********
 const configConnection = {
