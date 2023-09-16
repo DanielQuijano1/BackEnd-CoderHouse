@@ -24,9 +24,9 @@ cartsRouter.post("/", async (req, res) => {
 cartsRouter.post(`/:cid/product/:pid`, async (req, res) => {
     const { products } = req.body;
     const cid = Number(req.params.cid);
-    console.log("~ file: carts.routes.js:26 ~ cartsRouter.post ~ cid:", cid);
+    console.log("~ file: cartsRouter.post ~ cid:", cid);
     const pid = Number(req.params.pid);
-    console.log("~ file: carts.routes.js:28 ~ cartsRouter.post ~ pid:", pid);
+    console.log("~ file: cartsRouter.post ~ pid:", pid);
     const carga = await carts.addProductInCartById(cid, pid);
     res.status(200).json(carga);
 });

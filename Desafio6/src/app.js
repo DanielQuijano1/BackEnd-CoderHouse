@@ -54,7 +54,7 @@ io.on('connection', async (socket) => {
         try {
             return await productManager.addProducts(prod)
         } catch (error) {
-            console.log("🚀 ~ file: app.js:39 ~ io.on ~ error:", error)
+            console.log("🚀 ~ file: io.on ~ error:", error)
 
         }
     })

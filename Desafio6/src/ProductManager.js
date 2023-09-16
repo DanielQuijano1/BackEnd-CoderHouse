@@ -13,7 +13,7 @@ export class ProductManager {
             return listProducts[listProducts.length - 1].id + 1;
         } catch (error) {
             console.log(
-                "🚀 ~ file: armyManager.js:17 ~ ArmyManager ~ generateIndex ~ error",
+                "🚀 ~ file: ArmyManager ~ generateIndex ~ error",
                 error
             );
         }
@@ -73,7 +73,7 @@ export class ProductManager {
                 return { message: "El producto ha sido cargado correctamente" };
             } catch (error) {
                 console.log(
-                    "🚀 ~ file: ProductManager.js:46 ~ ProductManager ~ addProducts ~ error:",
+                    "🚀 ~ file: ProductManager ~ addProducts ~ error:",
                     error
                 );
             }
@@ -88,7 +88,7 @@ export class ProductManager {
             return data;
         } catch (error) {
             console.log(
-                "🚀 ~ file: ProductManager.js:59 ~ ProductManager ~ getProducts ~ error:",
+                "🚀 ~ file: ProductManager ~ getProducts ~ error:",
                 error
             );
         }
@@ -126,7 +126,7 @@ export class ProductManager {
                 return { message: "Producto actualizado correctamente" };
             } catch (error) {
                 console.log(
-                    "🚀 ~ file: ProductManager.js:120 ~ ProductManager ~ updateProduct= ~ error:",
+                    "🚀 ~ file: ProductManager ~ updateProduct= ~ error:",
                     error
                 );
             }
@@ -146,7 +146,7 @@ export class ProductManager {
             return { message: "Producto eliminado" };
         } catch (error) {
             console.log(
-                "🚀 ~ file: ProductManager.js:112 ~ ProductManager ~ deleteProduct ~ error:",
+                "🚀 ~ file: ProductManager ~ deleteProduct ~ error:",
                 error
             );
         }
