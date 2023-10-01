@@ -21,7 +21,7 @@ const mongoDBconnection = async () => {
         console.log("==========================");
     } catch (error) {
         console.log(
-            "🚀 ~ file: mongoDBconnection ~ error:",
+            "file: mongoDBconnection ~ error:",
             error
         );
         throw new Error(error);
