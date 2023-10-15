@@ -2,18 +2,20 @@ import express from "express";
 import displayRoutes from "express-routemap";
 import { __dirname } from "./path.js";
 import { mongoDBconnection } from "./db/mongo.config.js";
+import session from "express-session"
+import sessionConfig from "./db/session.config.js";
+import passport from "passport";
+import cookieParser from "cookie-parser"
+import initializePassport from "./config/passport.config.js";
 import { engine } from "express-handlebars";
 import path from "path";
 import { Server } from "socket.io"
 import ProductsManager from "./managers/productManager.js";
-import ChatsManager from "./managers/chatsManager.js";
-import session from "express-session"
-import sessionConfig from "./db/session.config.js";
+import ChatsManager from "./managers/chatsManager.js"
 import cors from "cors";
 import corsConfig from "./config/cors.config.js";
-import { PORT } from "./config/config.js";
-import passport from "passport";
-import initializePassport from "./config/passport.config.js";
+import { PORT, SIGNED_COOKIE } from "./config/config.js";
+
 
 class App {
     app;
@@ -27,6 +29,7 @@ class App {
     constructor(routes, viewsRoutes) {
         this.app = express();
         this.port = PORT;
+        this.signed_cookie = SIGNED_COOKIE;
         this.productsManager = new ProductsManager()
         this.chatsManager = new ChatsManager()
         this.initializePassport = initializePassport()
@@ -38,16 +41,13 @@ class App {
         this.initializeViewsRoutes(viewsRoutes)
     }
 
-
-    //inicializa la conexión con la base de datos
     async connectToDatabase() {
-        // TODO: Inicializar la conexion
         await mongoDBconnection();
     }
 
 
 
-    //implementando midleweares
+    // midleweares
     initializeMiddlewares() {
         this.app.use(cors(corsConfig));
         this.app.use(express.json());
@@ -55,7 +55,8 @@ class App {
         this.app.use(express.static(path.join(__dirname, "/public")));
         this.app.use(session(sessionConfig));
         this.app.use(passport.initialize());
-        this.app.use(passport.session())
+        this.app.use(passport.session());
+        this.app.use(cookieParser(this.signed_cookie)) 
     }
 
 
@@ -80,9 +81,7 @@ class App {
     async listen() {
         this.server = this.app.listen(this.port, () => {
             displayRoutes(this.app);
-            console.log(`=================================`);
             console.log(` App listening on the port ${this.port}`);
-            console.log(`=================================`);
         });
 
 
@@ -107,7 +106,7 @@ class App {
                     const productsList = await this.productsManager.getAllProducts();
                     socket.emit('products', productsList);
                 } catch (error) {
-                    console.log("file: app.js:91 ~ App ~ socket.on ~ error:", error)
+                    console.log("file:  App ~ socket.on ~ error:", error)
                 }
             })
 
@@ -118,18 +117,17 @@ class App {
                     socket.emit('products', productsList);
 
                 } catch (error) {
-                    console.log("file: app.js:103 ~ App ~ socket.on ~ error:", error)
+                    console.log("file: App ~ socket.on ~ error:", error)
                 }
             })
 
-            //****canal de mensajes
+            // canal de los mensajes
             socket.on("message", async (data) => {
                 try {
                     await this.chatsManager.addMessage(data);
-
                     //await chatsModel.create(data);
                 } catch (error) {
-                    console.log("file: app.js:67 ~ socket.on ~ error:", error)
+                    console.log("file: socket.on ~ error:", error)
 
                 }
                 //const info = await chatsModel.find();
