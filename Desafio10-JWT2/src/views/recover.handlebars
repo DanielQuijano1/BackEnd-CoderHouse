@@ -1,0 +1,26 @@
+<div class="container mt-5">
+    <h1>Recuperación de la contraseña</h1>
+
+    <div>
+        <form action="/api/session/update" method="post">
+            <label class="form-label mt-2" for="email">Correo</label><br />
+            <input class="form-control" type="emai" name="email" id="email"
+                placeholder="Introduzca su correo electronico" /><br />
+
+            <label class="form-label mt-2" for="oldPassword">Contraseña anterior</label><br />
+            <input class="form-control" type="password" name="old_password" id="old_password"
+                placeholder="Introduzca su contraseña anterior" /><br />
+
+            <label class="form-label mt-2" for="newPassword">Nueva contraseña</label><br />
+            <input class="form-control" type="password" name="new_password" id="new_password"
+                placeholder="Introduzca su nueva contraseña" /><br />
+
+            <label class="form-label mt-2" for="repeatNewPassword">Repetir nueva contraseña</label><br />
+            <input class="form-control" type="password" name="repeat_new_password" id="repeat_new_password"
+                placeholder="Repita su nueva contraseña" /><br />
+
+            <button class="btn btn-primary mt-5" type="submit">Actualizar contraseña</button>
+        </form>
+    </div>
+
+</div>
