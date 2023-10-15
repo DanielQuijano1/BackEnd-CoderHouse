@@ -9,7 +9,7 @@ const sessionConfig = {
     store: mongoStore.create({
         mongoUrl: DB_URL,
         mongoOptions: { useNewUrlParser: true, useUnifiedTopology: true },
-        ttl: 10 * 3600,
+        ttl: 12 * 360_000,
     }),
     secret: S_SECRET,
     resave: false,

@@ -2,16 +2,17 @@ import { Router } from "express";
 import UserManager from "../managers/usersManager.js";
 import { createHashValue, validatePassword } from "../utils/bcrypt.js";
 import passport from "passport";
-
+//import { generateJWT } from "../utils/jwt.js";
 
 //Verifico si el usuario es admin o no
 const auth = (req, res, next) => {
     if (req.session.email == "admin@admin.com" && req.session.password == "1234") {
-        return next() //Continua con la siguiente ejecucion
+        return next()
     }
 
     res.send("No tenes acceso a esta ruta")
 }
+
 
 class SessionRoutes {
     path = "/session"
@@ -25,9 +26,14 @@ class SessionRoutes {
     initSessionRoutes() {
         this.router.post(`${this.path}/login`, passport.authenticate('login', { failureRedirect: '/faillogin' }), async (req, res) => {
             try {
+
                 if (!req.user) {
                     return res.status(401).json({ message: "incorrect data" })
                 }
+
+                //const token = await generateJWT({email});
+                //console.log(" file: SessionRoutes ~ this.router.post ~ email:", email)
+
                 req.session.user = {
                     role: req.user.role,
                     first_name: req.user.first_name,
@@ -35,7 +41,13 @@ class SessionRoutes {
                     email: req.user.email,
                     age: req.user.age,
                 }
+
+                // res.cookie("cookieToken", token, {
+                //   maxAge: 12 * 360_000,
+                //   httpOnly: true,
+                // })
                 //res.status(200).json({payload: req.user})
+
                 res.render("profile", {
                     role: req.session?.user?.role || user.role,
                     first_name: req.session?.user?.first_name || user.first_name,
@@ -65,7 +77,7 @@ class SessionRoutes {
             try {
                 res.status(200).redirect("/login")
             } catch (error) {
-                console.log("file: session.routes.js:78 ~ SessionRoutes ~ this.router.post ~ error:", error)
+                console.log("file: SessionRoutes ~ this.router.post ~ error:", error)
                 res.status(400).send({
                     message: "error creating user",
                     error: error,
@@ -81,13 +93,15 @@ class SessionRoutes {
 
                 const newPswHashed = createHashValue(new_password);
                 const user = await this.userManager.findUserByEmail(email);
-                //validando usuario
+
+                //paraq validar el usuario
+
                 if (!user) {
                     res.status(404).json({
                         message: "Incorrect data"
                     })
                 }
-                //validando contraseña
+                //para validar la contraseña
                 const isValidComparePsw = validatePassword(old_password, user.password);
                 if (!isValidComparePsw || new_password !== repeat_new_password) {
                     return res.status(401).json({ message: `incorrect data` });
@@ -105,14 +119,14 @@ class SessionRoutes {
                 return res.render('login');
 
             } catch (error) {
-                console.log("file: session.routes.js:138 ~ router.post ~ error:", error)
+                console.log("file: router.post ~ error:", error)
 
             }
         })
 
 
 
-        //***********registro ususario mediante GithubStrategi ***********/
+        //***********registro usuario mediante GithubStrategi ***********/
 
         this.router.get(`${this.path}/github`, passport.authenticate('github', { scope: ['user:email'] }));
 
@@ -138,6 +152,10 @@ class SessionRoutes {
                 })
             }
 
+        })
+
+        this.router.get(`${this.path}/current`, passport.authenticate(`jwt`, { session: false }), (req, res) => {
+            res.send(req.user)
         })
 
     }
