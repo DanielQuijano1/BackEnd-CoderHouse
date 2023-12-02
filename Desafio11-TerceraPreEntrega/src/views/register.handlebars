@@ -1,0 +1,27 @@
+<div class="container">
+    <h1 class="mt-5">Registro</h1>
+
+    <div>
+        <form action="/api/session/register" method="post">
+            <label class="form-label" for="nombre-cliente">Nombre del usuario</label><br />
+            <input class="form-control mt-2" type="text" name="first_name" id="first_name"
+                placeholder="introduzca su nombre" required /><br />
+            <label class="form-label mt-2" for="last_name">Apellido</label><br />
+            <input class="form-control" type="text" name="last_name" id="last_name" placeholder="introduzca su apellido"
+                required /><br />
+            <label class="form-label mt-2" for="email">Email</label><br />
+            <input class="form-control" type="email" name="email" id="email"
+                placeholder="introduzca su correo electronico" required />
+            <br />
+            <label class="form-label mt-2" for="age">edad</label><br />
+            <input class="form-control" type="number" name="age" id="age" placeholder="introduzca su edad" min="0"
+                required />
+            <br />
+            <label class="form-label mt-2" for="password">Contraseña</label><br />
+            <input class="form-control" type="password" name="password" id="password"
+                placeholder="introduzca su contraseña" required />
+            <br />
+            <button class="btn btn-primary mt-5" type="submit">Registrar usuario</button>
+        </form>
+    </div>
+</div>
