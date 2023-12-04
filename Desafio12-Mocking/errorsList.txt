@@ -1,0 +1,29 @@
+Listado de posibles problemas:
+
+**REGISTRO**
+Error: Faltan campos obligatorios. 
+Error: Tipo de dato erroneo.
+Error: Email ya registrado. 
+
+
+**INICIO SESIÓN**
+Error: Email inválido.
+Error: Contraseña inválida.
+Error: Formato de email incorrecto.
+
+
+**CREACIÓN DE PRODUCTOS**
+Error: Faltan campos obligatorios en la creación de productos.
+Error: Código repetido. 
+Error: El número de Stock debe ser mayor a 1. 
+Error: Asegúrate de agregar una descripción al producto. 
+
+**AGREGAR AL CARRITO**
+Error: La cantidad solicitada del producto supera a su número de Stock.
+Error: Producto no disponible. 
+Error: Producto ya agregado al carrito. 
+
+**CARRITO**
+Error: El carrito está vacío.
+Error: El producto solicitado no se encuentra en el carrito. 
+Error: El producto ya no cuenta con la cantidad deseada. 
